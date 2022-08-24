@@ -37,6 +37,12 @@
         ],
         "config/*": [
           "./config/*"
+        ],
+        "utils/*": [
+          "./utils/*"
+        ],
+        "helpers/*": [
+          "./helpers/*"
         ]
       }
     },

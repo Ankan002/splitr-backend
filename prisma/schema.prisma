@@ -14,13 +14,13 @@ datasource db {
 
 model User {
   id           String         @id @default(uuid())
+  email        String         @unique
+  username     String         @unique
+  name         String
+  providerId   String         @unique
+  image        String
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt
-  username     String
-  name         String
-  providerId   String
-  password     String
-  image        String
   Group        Group?         @relation(fields: [groupId], references: [id])
   groupId      String?
   Bill         Bill[]

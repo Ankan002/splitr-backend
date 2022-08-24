@@ -8,7 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUnusedLocals": true,
@@ -45,6 +44,12 @@
       ],
       "config/*": [
         "./config/*"
+      ],
+      "utils/*": [
+        "./utils/*"
+      ],
+      "helpers/*": [
+        "./helpers/*"
       ]
     }
   },
