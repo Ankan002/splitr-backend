@@ -2,8 +2,26 @@ import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError, PrismaC
 import { getPrismClient } from "config/prisma-instance";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { isValidUsername } from "helpers/is-valid-username";
+import { generateUsername } from "helpers";
 import jwt from "jsonwebtoken";
+import JWTDecode, { InvalidTokenError } from "jwt-decode";
+
+interface GoogleProfile {
+    iss: string;
+	nbf: number;
+	aud: string;
+	sub: string;
+	email: string;
+	email_verified: boolean;
+	azp: string;
+	name: string;
+	picture: string;
+	given_name: string;
+	family_name: string;
+	iat: number;
+	exp: number;
+	jti: string;
+}
 
 const prismaInstance = getPrismClient();
 
@@ -17,19 +35,38 @@ export const login = async (req: Request, res: Response) => {
         });
     }
 
-    const { username, email, name, providerId, image } = req.body;
+    const { jwtProfileToken } = req.body;
 
-    if(isValidUsername(username) === false){
+    const profile: GoogleProfile = JWTDecode(jwtProfileToken);
+
+    const { sub, name, email, email_verified, picture } = profile;
+
+    if(!email_verified) {
         return res.status(400).json({
             success: false,
-            error: "Provide a valid username!!"
+            error: "Email not verified!!",
         });
     }
+
+    if (
+        !profile.sub ||
+        !profile.name ||
+        !profile.email ||
+        !profile.picture
+    ) {
+        return res.status(400).json({
+            success: false,
+            error: "Inavlid profile jwt. Please verify and retry.",
+            code: 400,
+        });
+    }
+
+    const username = generateUsername(email);
 
     try {
         const existingUser = await prismaInstance.user.findFirst({
             where: {
-                providerId
+                providerId: sub
             }
         });
 
@@ -50,8 +87,8 @@ export const login = async (req: Request, res: Response) => {
                 username,
                 email,
                 name,
-                providerId,
-                image
+                providerId: sub,
+                image: picture
             }
         });
 
@@ -67,7 +104,7 @@ export const login = async (req: Request, res: Response) => {
     }
     catch(error){
 
-        if(error instanceof PrismaClientKnownRequestError || error instanceof PrismaClientUnknownRequestError || error instanceof PrismaClientValidationError || error instanceof Error) {
+        if(error instanceof PrismaClientKnownRequestError || error instanceof PrismaClientUnknownRequestError || error instanceof PrismaClientValidationError || error instanceof Error || error instanceof InvalidTokenError) {
             return res.status(400).json({
                 success: false,
                 error: error.message
