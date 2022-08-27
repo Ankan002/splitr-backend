@@ -14,8 +14,7 @@ export const isAuthenticated = async(req:Request, res: Response, next: NextFunct
 
     try {
         const user: any = jwt.verify(authToken, process.env["SECRET"] ?? "");
-
-        logger.debug(!user.id);
+        
         req.user = user.id;
 
         next();
