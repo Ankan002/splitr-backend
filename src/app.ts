@@ -4,6 +4,8 @@ import fileUpload from "express-fileupload";
 import { authRouter } from "routes/auth";
 import { morganConfig } from "middlewares/morgan";
 import { logger } from "utils/logger";
+import { userRouter } from "routes/user";
+
 
 export const startServer = () => {
     const app = express();
@@ -23,6 +25,7 @@ export const startServer = () => {
     });
 
     app.use("/api", authRouter);
+    app.use("/api", userRouter);
 
     app.listen(process.env["PORT"], () => logger.info(`App is running at ${process.env["PORT"]}`));
 };

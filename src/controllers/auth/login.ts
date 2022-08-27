@@ -1,5 +1,5 @@
 import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError, PrismaClientValidationError } from "@prisma/client/runtime";
-import { getPrismClient } from "config/prisma-instance";
+import { getPrismaClient } from "config/prisma-instance";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { generateUsername } from "helpers/generate-username";
@@ -23,7 +23,7 @@ interface GoogleProfile {
 	jti: string;
 }
 
-const prismaInstance = getPrismClient();
+const prismaInstance = getPrismaClient();
 
 export const login = async (req: Request, res: Response) => {
     const errors = validationResult(req);
