@@ -2,7 +2,7 @@ import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError, PrismaC
 import { getPrismaClient } from "config/prisma-instance";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { generateUsername } from "helpers/generate-username";
+import { generateUsername } from "helpers/username";
 import jwt from "jsonwebtoken";
 import JWTDecode, { InvalidTokenError } from "jwt-decode";
 

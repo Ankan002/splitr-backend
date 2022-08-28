@@ -1,1 +1,1 @@
-export * from "./generate-username";
+export * from "./username/generate-username";
