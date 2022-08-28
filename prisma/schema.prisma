@@ -13,28 +13,27 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
-  email        String         @unique
-  username     String         @unique
+  id           String           @id @default(uuid())
+  email        String           @unique
+  username     String           @unique
   name         String
-  providerId   String         @unique
+  providerId   String           @unique
   image        String
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-  Group        Group?         @relation(fields: [groupId], references: [id])
-  groupId      String?
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+  Groups       MembersInGroup[]
   Bill         Bill[]
   Contribution Contribution[]
 }
 
 model Group {
-  id          String   @id @default(uuid())
+  id          String           @id @default(uuid())
   name        String
-  members     User[]
+  members     MembersInGroup[]
   image       String
   description String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
   Bill        Bill[]
 }
 
@@ -65,4 +64,13 @@ model Contribution {
   paid            Boolean
   paymentVerified Boolean
   transactionId   String?
+}
+
+model MembersInGroup {
+  member  User   @relation(fields: [userId], references: [id])
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
+  userId  String
+
+  @@id([groupId, userId])
 }
