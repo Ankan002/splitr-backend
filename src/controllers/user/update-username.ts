@@ -1,52 +1,64 @@
 import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError, PrismaClientValidationError } from "@prisma/client/runtime";
 import { getPrismaClient } from "config/prisma-instance";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
+import { validateUsername } from "helpers/username";
 import { logger } from "utils/logger";
 
 const prismaInstance = getPrismaClient();
 
-export const getUserByUsername = async (req: Request, res: Response) => {
-    const { username } = req.query;
+export const updateUsername = async (req: Request, res: Response) => {
 
-    logger.debug(username);
+    const errors = validationResult(req);
 
-    if(!username){
+    if(!errors.isEmpty()){
         return res.status(400).json({
             success: false,
-            error: "Please provide a valid username to search"
+            error: errors.array().length > 1 ? errors.array()[1]?.msg : errors.array()[0]?.msg
         });
     }
 
-    try {
-        const user = await prismaInstance.user.findUnique({
+    const userId = req.user;
+    const { username } = req.body;
+
+    if(!validateUsername(username)){
+        return res.status(400).json({
+            success: false,
+            error: "Username must not contain _gal at the end or empty spaces"
+        });
+    }
+
+    try{
+        const updatedUser = await prismaInstance.user.update({
             where: {
-                username: username as string,
+                id: userId
+            },
+            data: {
+                username
             },
             select: {
                 id: true,
-                name: true,
                 username: true,
-                image: true,
-                email: true
             }
         });
-
-        if(!user){
-            return res.status(400).json({
-                success: false,
-                error: "No user found with that username"
-            });
-        }
 
         return res.status(200).json({
             success: true,
             data: {
-                user
+                username: updatedUser.username,
             }
         });
+
     }
-    catch(error) {
+    catch(error){
         logger.error(error);
+
+        if(error instanceof PrismaClientKnownRequestError && error.code === "P2002"){
+            return res.status(400).json({
+                success: false,
+                error: "An user with the same username already exists"
+            });
+        }
 
         if(error instanceof PrismaClientKnownRequestError || error instanceof PrismaClientUnknownRequestError || error instanceof PrismaClientValidationError || error instanceof Error) {
             return res.status(400).json({
