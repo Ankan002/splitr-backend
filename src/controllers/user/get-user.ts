@@ -20,7 +20,7 @@ export const getUser = async (req: Request, res: Response) => {
                 email: true,
                 providerId: true,
                 created_at: true,
-                updated_at: true,
+                updated_at: true
             }
         });
 

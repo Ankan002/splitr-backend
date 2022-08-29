@@ -5,6 +5,7 @@ import { authRouter } from "routes/auth";
 import { morganConfig } from "middlewares/morgan";
 import { logger } from "utils/logger";
 import { userRouter } from "routes/user";
+import { groupRouter } from "routes/group";
 
 
 export const startServer = () => {
@@ -17,7 +18,7 @@ export const startServer = () => {
         useTempFiles: true
     }));
 
-    app.get("/", (req: Request, res: Response) => {
+    app.get("/", async(req: Request, res: Response) => {
         return res.status(200).json({
             success: true,
             message: "Welcome to Splitr API!!"
@@ -26,6 +27,7 @@ export const startServer = () => {
 
     app.use("/api", authRouter);
     app.use("/api", userRouter);
+    app.use("/api", groupRouter);
 
     app.listen(process.env["PORT"], () => logger.info(`App is running at ${process.env["PORT"]}`));
 };
