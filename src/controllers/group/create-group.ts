@@ -24,9 +24,9 @@ export const createGroup = async (req: Request, res: Response) => {
 
     try {
         const members = JSON.parse(req.body.members);
-        console.log(typeof members);
 
         if(name.length < 3 || name.length > 50){
+            fs.unlink(image.tempFilePath, (e) => logger.error(e));
             return res.status(400).json({
                 success: false,
                 error: "Group name should be at least 3 characters long and at most 50 characters long"
@@ -34,6 +34,7 @@ export const createGroup = async (req: Request, res: Response) => {
         }
 
         if(description.length < 20 || description.length > 300){
+            fs.unlink(image.tempFilePath, (e) => logger.error(e));
             return res.status(400).json({
                 success: false,
                 error: "Group description should be at least 20 characters long and at most 300 characters long"
@@ -41,6 +42,7 @@ export const createGroup = async (req: Request, res: Response) => {
         }
 
         if(members.includes(userId)){
+            fs.unlink(image.tempFilePath, (e) => logger.error(e));
             return res.status(400).json({
                 success: false,
                 error: "You cannot be in a group 2 times.... You do not have a multi-personality disorder I believe!!"
@@ -48,6 +50,7 @@ export const createGroup = async (req: Request, res: Response) => {
         }
 
         if(members.length < 1 || members.length > 49){
+            fs.unlink(image.tempFilePath, (e) => logger.error(e));
             return res.status(400).json({
                 success: false,
                 error: "Please provide us at least 1 of your friends and at most 49 friends"
@@ -103,6 +106,8 @@ export const createGroup = async (req: Request, res: Response) => {
     }
     catch(error){
         logger.error(error);
+
+        fs.unlink(image.tempFilePath, (e) => console.log(e));
 
         if(error instanceof PrismaClientKnownRequestError || error instanceof PrismaClientUnknownRequestError || error instanceof PrismaClientValidationError || error instanceof Error) {
             return res.status(400).json({
